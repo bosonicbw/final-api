@@ -19,16 +19,36 @@ app.use(express.json());
 // Routes
 app.use('/states', require('./routes/states'));
 
-// Set header...
+// Set FULL HTML header...
 app.get('/', (req, res) => {
-    res.type('html');
-    res.send('<h1>Final API - States Data</h1>');
+  res.type('html');
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Final API</title>
+      </head>
+      <body>
+        <h1>Final API - States Data</h1>
+      </body>
+    </html>
+  `);
 });
 
-// Standard error handler...
+// Standard FULL HTML error handler...
 app.all('*', (req, res) => {
-    res.type('html');
-    res.status(404).send('<h1>404 Not Found for Final API - States Data</h1>');
+  res.type('html');
+  res.status(404).send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>404 Not Found</title>
+      </head>
+      <body>
+        <h1>404 Not Found for Final API - States Data</h1>
+      </body>
+    </html>
+  `);
 });
 
 // Start...
