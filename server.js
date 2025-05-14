@@ -19,13 +19,14 @@ app.use(express.json());
 // Routes
 app.use('/states', require('./routes/states'));
 
+// Set header...
+app.get('/', (req, res) => {
+  res.send('<h1>Final API - States Data</h1>');
+});
+
 // Standard error handler...
 app.all('*', (req, res) => {
-  if (req.accepts('html')) {
-    res.status(404).send('<h1>404 Not Found</h1>');
-  } else {
-    res.status(404).json({ error: '404 Not Found' });
-  }
+  res.status(404).send('<h1>404 Not Found</h1>');
 });
 
 // Start...
