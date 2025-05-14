@@ -168,8 +168,18 @@ router.delete('/:state/funfact', verifyState, async (req, res) => {
 
     const stateDoc = await State.findOne({ stateCode: code });
 
+    /* Commenting out since splitting it to break it up for different messages needed...
     if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
         return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
+    }*/
+   
+   // General check
+    if (!stateDoc || !stateDoc.funfacts) {
+        return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
+    }
+    // Specific index check
+    if (index < 1 || index > stateDoc.funfacts.length) {
+        return res.status(404).json({ message: `No Fun Fact found at that index for ${fullStateName}` });
     }
 
     // Update fun fact...
