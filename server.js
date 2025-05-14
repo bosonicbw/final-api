@@ -21,6 +21,7 @@ app.use('/states', require('./routes/states'));
 
 // Set header...
 app.get('/', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
   res.send('<h1>Final API - States Data</h1>');
 });
 
