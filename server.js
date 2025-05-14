@@ -21,14 +21,14 @@ app.use('/states', require('./routes/states'));
 
 // Set header...
 app.get('/', (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
+    res.type('html');
     res.send('<h1>Final API - States Data</h1>');
 });
 
 // Standard error handler...
 app.all('*', (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.status(404).send('<h1>404 Not Found</h1>');
+    res.type('html');
+    res.status(404).send('<h1>404 Not Found for Final API - States Data</h1>');
 });
 
 // Start...
