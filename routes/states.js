@@ -11,8 +11,8 @@ const fullStateName = stateData?.state || code;
 
 // Handle JSON and MongoDB
 const mergeFunFacts = async () => {
-  const dbStates = await State.find();
-  return states.map(state => {
+    const dbStates = await State.find();
+    return states.map(state => {
     const match = dbStates.find(s => s.stateCode === state.code);
     return match ? { ...state, funfacts: match.funfacts } : state;
   });
@@ -20,141 +20,145 @@ const mergeFunFacts = async () => {
 
 // GET /states/
 router.get('/', async (req, res) => {
-  const { contig } = req.query;
-  let data = await mergeFunFacts();
+    const { contig } = req.query;
+    let data = await mergeFunFacts();
 
-  if (contig === 'true') {
-    data = data.filter(state => state.code !== 'AK' && state.code !== 'HI');
-  } else if (contig === 'false') {
-    data = data.filter(state => state.code === 'AK' || state.code === 'HI');
-  }
+    if (contig === 'true') {
+        data = data.filter(state => state.code !== 'AK' && state.code !== 'HI');
+    } else if (contig === 'false') {
+        data = data.filter(state => state.code === 'AK' || state.code === 'HI');
+    }
 
-  res.json(data);
+     res.json(data);
 });
 
 // GET /states/:state
 router.get('/:state', verifyState, async (req, res) => {
-  const code = req.code;
-  const stateData = states.find(state => state.code === code);
-  const dbData = await State.findOne({ stateCode: code });
+    const code = req.code;
+    const stateData = states.find(state => state.code === code);
+    const dbData = await State.findOne({ stateCode: code });
 
-  if (dbData?.funfacts?.length) {
-    stateData.funfacts = dbData.funfacts;
-  }
+    if (dbData?.funfacts?.length) {
+        stateData.funfacts = dbData.funfacts;
+    }
 
-  res.json(stateData);
+    res.json(stateData);
 });
 
 // GET /states/:state/funfact
 router.get('/:state/funfact', verifyState, async (req, res) => {
-  const code = req.code;
-  const dbData = await State.findOne({ stateCode: code });
+    const code = req.code;
+    const dbData = await State.findOne({ stateCode: code });
 
-  if (!dbData || !dbData.funfacts || dbData.funfacts.length === 0) {
-    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
-  }
+    if (!dbData || !dbData.funfacts || dbData.funfacts.length === 0) {
+        return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
+    }
 
-  const random = dbData.funfacts[Math.floor(Math.random() * dbData.funfacts.length)];
-  res.json({ funfact: random });
+    const random = dbData.funfacts[Math.floor(Math.random() * dbData.funfacts.length)];
+    res.json({ funfact: random });
 });
 
 // GET /states/:state/capital
 router.get('/:state/capital', verifyState, (req, res) => {
-  const code = req.code;
-  const stateData = states.find(state => state.code === code);
-  res.json({ state: stateData.state, capital: stateData.capital_city });
+    const code = req.code;
+    const stateData = states.find(state => state.code === code);
+    res.json({ state: stateData.state, capital: stateData.capital_city });
 });
 
 // GET /states/:state/nickname
 router.get('/:state/nickname', verifyState, (req, res) => {
-  const code = req.code;
-  const stateData = states.find(state => state.code === code);
-  res.json({ state: stateData.state, nickname: stateData.nickname });
+    const code = req.code;
+    const stateData = states.find(state => state.code === code);
+    res.json({ state: stateData.state, nickname: stateData.nickname });
 });
 
 // GET /states/:state/population
 router.get('/:state/population', verifyState, (req, res) => {
-  const code = req.code;
-  const stateData = states.find(state => state.code === code);
-  res.json({ state: stateData.state, population: stateData.population });
+    const code = req.code;
+    const stateData = states.find(state => state.code === code);
+    res.json({ state: stateData.state, population: stateData.population });
 });
 
 // GET /states/:state/admission
 router.get('/:state/admission', verifyState, (req, res) => {
-  const code = req.code;
-  const stateData = states.find(state => state.code === code);
-  res.json({ state: stateData.state, admitted: stateData.admission_date });
+    const code = req.code;
+    const stateData = states.find(state => state.code === code);
+    res.json({ state: stateData.state, admitted: stateData.admission_date });
 });
 
 // POST /states/:state/funfact
 router.post('/:state/funfact', verifyState, async (req, res) => {
-  const code = req.code;
-  const { funfacts } = req.body;
-  // Error handling...
-  if (!funfacts || !Array.isArray(funfacts) || funfacts.length === 0) {
-    return res.status(400).json({ message: 'State fun facts value required and must be an array' });
-  }
+    const code = req.code;
+    const { funfacts } = req.body;
+    // Error handling...
+    if (!funfacts) {
+        return res.status(400).json({ message: 'State fun facts value required' });
+    }
+        if (!Array.isArray(funfacts)) {
+        return res.status(400).json({ message: 'State fun facts value must be an array' });
+    }
 
-  let stateDoc = await State.findOne({ stateCode: code });
 
-  // Confirm present before continuing
-  if (stateDoc) {
-    stateDoc.funfacts.push(...funfacts);
-    await stateDoc.save();
-    return res.json(stateDoc);
-  }
+    let stateDoc = await State.findOne({ stateCode: code });
 
-  const newState = await State.create({ stateCode: code, funfacts });
-  res.status(201).json(newState);
+    // Confirm present before continuing
+    if (stateDoc) {
+        stateDoc.funfacts.push(...funfacts);
+        await stateDoc.save();
+        return res.json(stateDoc);
+    }
+
+    const newState = await State.create({ stateCode: code, funfacts });
+    res.status(201).json(newState);
 });
 
 // PATCH /states/:state/funfact
 router.patch('/:state/funfact', verifyState, async (req, res) => {
-  // Instantiate vars
-  const code = req.code;
-  const { index, funfact } = req.body;
+    // Instantiate vars
+    const code = req.code;
+    const { index, funfact } = req.body;
 
-  // Error handling...
-  if (!index) {
-    return res.status(400).json({ message: 'State fun fact index value required' });
-  }
-  if (!funfact) {
-    return res.status(400).json({ message: 'State fun fact value required' });
-  }
+    // Error handling...
+    if (!index) {
+        return res.status(400).json({ message: 'State fun fact index value required' });
+    }
+    if (!funfact) {
+        return res.status(400).json({ message: 'State fun fact value required' });
+    }
 
-  const stateDoc = await State.findOne({ stateCode: code });
+    const stateDoc = await State.findOne({ stateCode: code });
 
-  if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
-    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
-  }
+    if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
+        return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
+    }
 
-  // Update fun fact...
-  stateDoc.funfacts[index - 1] = funfact;
-  await stateDoc.save();
-  res.json(stateDoc);
+    // Update fun fact...
+    stateDoc.funfacts[index - 1] = funfact;
+    await stateDoc.save();
+    res.json(stateDoc);
 });
 
 // DELETE /states/:state/funfact
 router.delete('/:state/funfact', verifyState, async (req, res) => {
-  // Instantiate vars
-  const code = req.code;
-  const { index } = req.body;
+    // Instantiate vars
+    const code = req.code;
+    const { index } = req.body;
 
-  // Error handling...
-  if (!index) {
-    return res.status(400).json({ message: 'State fun fact index value required' });
-  }
+    // Error handling...
+    if (!index) {
+        return res.status(400).json({ message: 'State fun fact index value required' });
+    }
 
-  const stateDoc = await State.findOne({ stateCode: code });
+    const stateDoc = await State.findOne({ stateCode: code });
 
-  if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
-    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
-  }
+    if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
+        return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
+    }
 
-  // Update fun fact...
-  stateDoc.funfacts.splice(index - 1, 1);
-  await stateDoc.save();
-  res.json(stateDoc);
+    // Update fun fact...
+    stateDoc.funfacts.splice(index - 1, 1);
+    await stateDoc.save();
+    res.json(stateDoc);
 });
 
 // Export for server.js...
