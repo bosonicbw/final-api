@@ -5,6 +5,10 @@ const State = require('../models/State');
 const states = require('../models/statesData.json');
 const verifyState = require('../middleware/verifyState');
 
+// Global var for fullStateName to set output messages appropriately...
+const stateData = states.find(state => state.code === code);
+const fullStateName = stateData?.state || code;
+
 // Handle JSON and MongoDB
 const mergeFunFacts = async () => {
   const dbStates = await State.find();
@@ -47,7 +51,7 @@ router.get('/:state/funfact', verifyState, async (req, res) => {
   const dbData = await State.findOne({ stateCode: code });
 
   if (!dbData || !dbData.funfacts || dbData.funfacts.length === 0) {
-    return res.json({ message: `No Fun Facts found for ${code}` });
+    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
   }
 
   const random = dbData.funfacts[Math.floor(Math.random() * dbData.funfacts.length)];
@@ -121,7 +125,7 @@ router.patch('/:state/funfact', verifyState, async (req, res) => {
   const stateDoc = await State.findOne({ stateCode: code });
 
   if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
-    return res.status(404).json({ message: `No Fun Fact found at that index for ${code}` });
+    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
   }
 
   // Update fun fact...
@@ -144,7 +148,7 @@ router.delete('/:state/funfact', verifyState, async (req, res) => {
   const stateDoc = await State.findOne({ stateCode: code });
 
   if (!stateDoc || !stateDoc.funfacts || index < 1 || index > stateDoc.funfacts.length) {
-    return res.status(404).json({ message: `No Fun Fact found at that index for ${code}` });
+    return res.status(404).json({ message: `No Fun Facts found for ${fullStateName}` });
   }
 
   // Update fun fact...
