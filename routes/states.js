@@ -75,7 +75,10 @@ router.get('/:state/nickname', verifyState, (req, res) => {
 router.get('/:state/population', verifyState, (req, res) => {
     const code = req.code;
     const stateData = states.find(state => state.code === code);
-    res.json({ state: stateData.state, population: stateData.population });
+    res.json({
+        state: stateData.state,
+        population: Number(stateData.population).toLocaleString()
+    });
 });
 
 // GET /states/:state/admission
